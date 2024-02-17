@@ -1,0 +1,6 @@
+@ETL.Api_HostAddress = http://localhost:5187
+
+GET {{ETL.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

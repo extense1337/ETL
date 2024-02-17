@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETL.Api", "ETL.Api\ETL.Api.csproj", "{97BBCA4A-B6C5-408F-8F87-D0713E58A737}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETL.DataAccess.PostgreSQL", "ETL.DataAccess.PostgreSQL\ETL.DataAccess.PostgreSQL.csproj", "{10533C41-A43A-402A-A8B1-1BE81E797893}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETL.Extractor", "ETL.Extractor\ETL.Extractor.csproj", "{544F8CF4-F5FF-4A1C-8665-1593E93D824B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ETL.Domain", "ETL.Domain\ETL.Domain.csproj", "{DD93DD9E-AAF1-453F-8995-F479CD1233DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97BBCA4A-B6C5-408F-8F87-D0713E58A737}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97BBCA4A-B6C5-408F-8F87-D0713E58A737}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97BBCA4A-B6C5-408F-8F87-D0713E58A737}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97BBCA4A-B6C5-408F-8F87-D0713E58A737}.Release|Any CPU.Build.0 = Release|Any CPU
+		{10533C41-A43A-402A-A8B1-1BE81E797893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{10533C41-A43A-402A-A8B1-1BE81E797893}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{10533C41-A43A-402A-A8B1-1BE81E797893}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{10533C41-A43A-402A-A8B1-1BE81E797893}.Release|Any CPU.Build.0 = Release|Any CPU
+		{544F8CF4-F5FF-4A1C-8665-1593E93D824B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{544F8CF4-F5FF-4A1C-8665-1593E93D824B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{544F8CF4-F5FF-4A1C-8665-1593E93D824B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{544F8CF4-F5FF-4A1C-8665-1593E93D824B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD93DD9E-AAF1-453F-8995-F479CD1233DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD93DD9E-AAF1-453F-8995-F479CD1233DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD93DD9E-AAF1-453F-8995-F479CD1233DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD93DD9E-AAF1-453F-8995-F479CD1233DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
