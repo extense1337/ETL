@@ -12,7 +12,7 @@ builder.Services.AddDbContext<UniversityDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("NpgUniversitiesDbConnection"));
 });
-builder.Services.AddKeyedSingleton<IUniversityRepository, UniversityRepository>("pg_repo");
+builder.Services.AddKeyedScoped<IUniversityRepository, UniversityRepository>("pg_repo");
 
 var externalApiConfig = new ExternalApiConfig
 {
@@ -25,7 +25,7 @@ builder.Services.AddHttpClient<IExtractor, Extractor>(client =>
         client.BaseAddress = new Uri(externalApiConfig.Host);
 });
 builder.Services.AddSingleton(externalApiConfig);
-builder.Services.AddSingleton<IExtractor, Extractor>();
+builder.Services.AddScoped<IExtractor, Extractor>();
 
 var app = builder.Build();
 
@@ -39,7 +39,17 @@ app.UseHttpsRedirection();
 
 app.MapGet("/universities", async (
         [FromKeyedServices("pg_repo")] IUniversityRepository universityRepository,
-        UniversityFilter filter, CancellationToken cancellationToken) => await universityRepository.GetAsync(filter, cancellationToken))
+        string? countryName,
+        string? name,
+        CancellationToken cancellationToken) =>
+    {
+        var filter = new UniversityFilter
+        {
+            CountryName = countryName,
+            Name = name
+        };
+        return await universityRepository.GetAsync(filter, cancellationToken);
+    })
     .WithName("GetUniversities")
     .WithOpenApi();
 
