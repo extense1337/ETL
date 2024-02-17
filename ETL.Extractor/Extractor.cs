@@ -1,4 +1,5 @@
 ﻿using ETL.Domain;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -25,7 +26,11 @@ public class Extractor : IExtractor
     private readonly HttpClient _httpClient;
     private readonly ExternalApiConfig _apiConfig;
 
-    public Extractor(ILogger<Extractor> logger, IUniversityRepository universityRepository, HttpClient httpClient, ExternalApiConfig apiConfig)
+    public Extractor(
+        ILogger<Extractor> logger,
+        [FromKeyedServices("pg_repo")] IUniversityRepository universityRepository,
+        HttpClient httpClient,
+        ExternalApiConfig apiConfig)
     {
         _logger = logger;
         _universityRepository = universityRepository;
