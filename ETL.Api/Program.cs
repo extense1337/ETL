@@ -1,6 +1,7 @@
 using ETL.DataAccess.PostgreSQL;
 using ETL.Domain;
 using ETL.Extractor;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +56,15 @@ app.MapGet("/universities", async (
         return await universityRepository.GetAsync(filter, cancellationToken);
     })
     .WithName("GetUniversities")
+    .WithOpenApi();
+
+app.MapPost("/extract", async (
+        [FromServices] IExtractor extractor,
+        CancellationToken cancellationToken) =>
+    {
+        await extractor.DoExtract(new List<string>(), cancellationToken);
+    })
+    .WithName("ExtractUniversities")
     .WithOpenApi();
 
 app.Run();
