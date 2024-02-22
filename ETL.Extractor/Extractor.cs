@@ -14,10 +14,11 @@ public interface IExtractor
     /// <summary>
     /// Выполнить загрузку данных
     /// </summary>
-    /// <param name="countries"></param>
+    /// <param name="countries">Список стран</param>
+    /// <param name="threadLimit">Кол-во потоков при параллельной загрузке</param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task DoExtract(IEnumerable<string> countries, CancellationToken cancellationToken = default);
+    Task DoExtract(List<string> countries, int threadLimit, CancellationToken cancellationToken = default);
 }
 
 /// <inheritdoc />
@@ -41,11 +42,11 @@ public class Extractor : IExtractor
     }
 
     /// <inheritdoc />
-    public async Task DoExtract(IEnumerable<string> countries, CancellationToken cancellationToken = default)
+    public async Task DoExtract(List<string> countries, int threadLimit, CancellationToken cancellationToken = default)
     {
         try
         {
-            var data = await GetExternalData(countries, cancellationToken);
+            var data = await GetUniversities(countries, threadLimit, cancellationToken);
 
             if (data is null)
             {
@@ -72,27 +73,37 @@ public class Extractor : IExtractor
         }
     }
 
-    private async Task<List<IEnumerable<UniversityEntry>?>?> GetExternalData(IEnumerable<string> countries, CancellationToken cancellationToken)
+    private async Task<List<IEnumerable<UniversityEntry>?>?> GetUniversities(List<string> countries, int threadLimit, CancellationToken cancellationToken)
     {
+        if (_apiConfig.Host is null || _apiConfig.SearchRoute is null)
+            throw new ArgumentException("Неверно заполнен ExternalApi в конфигурационном файле!");
+
         var result = new List<IEnumerable<UniversityEntry>?>();
 
         try
         {
-            if (_apiConfig.Host is null || _apiConfig.SearchRoute is null)
-                throw new ArgumentException("Неверно заполнен ExternalApi в конфигурационном файле!");
+            var tasks = new List<Task<IEnumerable<UniversityEntry>?>>();
+            var semaphore = new SemaphoreSlim(threadLimit);
 
-            var tasks = countries
-                .Select(country => _httpClient
-                    .GetAsync(_apiConfig.Host + _apiConfig.SearchRoute + $"/{country}", cancellationToken))
-                .ToList();
-
-            var responses = await Task.WhenAll(tasks);
-
-            foreach (var response in responses)
+            foreach (var country in countries)
             {
-                var json = await response.Content.ReadAsStringAsync(cancellationToken);
-                result.Add(JsonConvert.DeserializeObject<IEnumerable<UniversityEntry>>(json));
+                await semaphore.WaitAsync(cancellationToken);
+
+                tasks.Add(
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            return await GetUniversities(country, cancellationToken);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    }, cancellationToken));
             }
+
+            result = (await Task.WhenAll(tasks)).ToList();
         }
         catch (Exception ex)
         {
@@ -100,5 +111,27 @@ public class Extractor : IExtractor
         }
 
         return result;
+    }
+
+    private async Task<IEnumerable<UniversityEntry>?> GetUniversities(string country, CancellationToken cancellationToken)
+    {
+        var universities = new List<UniversityEntry>();
+
+        try
+        {
+            if (_apiConfig.Host is null || _apiConfig.SearchRoute is null)
+                throw new ArgumentException("Неверно заполнен ExternalApi в конфигурационном файле!");
+
+            var response = await _httpClient.GetAsync(_apiConfig.Host + _apiConfig.SearchRoute + $"/{country}", cancellationToken);
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+            universities = JsonConvert.DeserializeObject<List<UniversityEntry>>(json);
+        }
+        catch (Exception ex)
+        {
+            _logger.Log(LogLevel.Error, ex, "Ошибка при попытка получения данных");
+        }
+
+        return universities;
     }
 }
