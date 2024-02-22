@@ -40,16 +40,21 @@ public class UniversityRepository : IUniversityRepository
     }
 
     /// <inheritdoc />
-    public async Task<int> PutAsync(IEnumerable<UniversityModel> universities, CancellationToken cancellationToken = default)
+    public async Task PutAsync(IEnumerable<UniversityModel> universities, CancellationToken cancellationToken = default)
     {
         var entities = universities.Select(university => new UniversityEntity
         {
             CountryName = university.CountryName,
             Name = university.Name,
-            Sites = string.Join(',', university.Sites)
+            Sites = university.Sites != null ? string.Join(',', university.Sites) : string.Empty
         });
 
-        await _universityDbContext.Universities.AddRangeAsync(entities, cancellationToken);
-        return await _universityDbContext.SaveChangesAsync(cancellationToken);
+        await _universityDbContext.Universities.AddRangeAsync(entities, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc />
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return _universityDbContext.SaveChangesAsync(cancellationToken);
     }
 }

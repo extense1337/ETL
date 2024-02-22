@@ -18,6 +18,12 @@ public interface IUniversityRepository
     /// </summary>
     /// <param name="universities">Перечисление учебных заведений</param>
     /// <param name="cancellationToken">Токен отмены</param>
+    Task PutAsync(IEnumerable<UniversityModel> universities, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Сохранить изменения
+    /// </summary>
+    /// <param name="cancellationToken">Токен отмены</param>
     /// <returns>Число добавленых записей</returns>
-    Task<int> PutAsync(IEnumerable<UniversityModel> universities, CancellationToken cancellationToken = default);
+    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
