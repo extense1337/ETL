@@ -4,7 +4,7 @@ public class UniversityEntry
 {
     public string AlphaTwoCode { get; set; }
 
-    public IReadOnlyCollection<string> WebPages { get; set; }
+    public IReadOnlyCollection<string>? WebPages { get; set; }
 
     public string Name { get; set; }
 

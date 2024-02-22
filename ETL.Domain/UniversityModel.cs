@@ -6,5 +6,5 @@ public class UniversityModel
 
     public string Name { get; set; }
 
-    public List<string> Sites { get; set; }
+    public List<string>? Sites { get; set; }
 }

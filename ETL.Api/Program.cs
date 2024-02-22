@@ -23,6 +23,8 @@ builder.Services.AddExtractor(optionsBuilder =>
 {
     optionsBuilder.Options.Config = externalApiConfig;
 });
+builder.Services.AddSingleton(externalApiConfig);
+builder.Services.AddScoped<IExtractor, Extractor>();
 
 var app = builder.Build();
 

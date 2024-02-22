@@ -14,9 +14,10 @@ public interface IExtractor
     /// <summary>
     /// Выполнить загрузку данных
     /// </summary>
+    /// <param name="countries"></param>
     /// <param name="cancellationToken"></param>
     /// <returns></returns>
-    Task DoExtract(CancellationToken cancellationToken = default);
+    Task DoExtract(IEnumerable<string> countries, CancellationToken cancellationToken = default);
 }
 
 /// <inheritdoc />
@@ -40,11 +41,11 @@ public class Extractor : IExtractor
     }
 
     /// <inheritdoc />
-    public async Task DoExtract(CancellationToken cancellationToken = default)
+    public async Task DoExtract(IEnumerable<string> countries, CancellationToken cancellationToken = default)
     {
         try
         {
-            var data = await GetExternalData(cancellationToken);
+            var data = await GetExternalData(countries, cancellationToken);
 
             if (data is null)
             {
@@ -52,14 +53,18 @@ public class Extractor : IExtractor
                 return;
             }
 
-            var universities = data.Select(entry => new UniversityModel
+            foreach (var entries in data)
             {
-                CountryName = entry.Country,
-                Name = entry.Name,
-                Sites = entry.WebPages.ToList()
-            });
+                if (entries == null) continue;
+                var universities = entries.Select(entry => new UniversityModel
+                {
+                    CountryName = entry.Country,
+                    Name = entry.Name,
+                    Sites = entry.WebPages?.ToList()
+                });
 
-            await _universityRepository.PutAsync(universities, cancellationToken);
+                await _universityRepository.PutAsync(universities, cancellationToken);
+            }
         }
         catch (Exception ex)
         {
@@ -67,19 +72,27 @@ public class Extractor : IExtractor
         }
     }
 
-    private async Task<IEnumerable<UniversityEntry>?> GetExternalData(CancellationToken cancellationToken)
+    private async Task<List<IEnumerable<UniversityEntry>?>?> GetExternalData(IEnumerable<string> countries, CancellationToken cancellationToken)
     {
-        IEnumerable<UniversityEntry>? result = null;
+        var result = new List<IEnumerable<UniversityEntry>?>();
 
         try
         {
             if (_apiConfig.Host is null || _apiConfig.SearchRoute is null)
                 throw new ArgumentException("Неверно заполнен ExternalApi в конфигурационном файле!");
 
-            var response = await _httpClient.GetAsync(_apiConfig.Host + _apiConfig.SearchRoute, cancellationToken);
+            var tasks = countries
+                .Select(country => _httpClient
+                    .GetAsync(_apiConfig.Host + _apiConfig.SearchRoute + $"/{country}", cancellationToken))
+                .ToList();
 
-            var json = await response.Content.ReadAsStringAsync(cancellationToken);
-            result = JsonConvert.DeserializeObject<IEnumerable<UniversityEntry>>(json);
+            var responses = await Task.WhenAll(tasks);
+
+            foreach (var response in responses)
+            {
+                var json = await response.Content.ReadAsStringAsync(cancellationToken);
+                result.Add(JsonConvert.DeserializeObject<IEnumerable<UniversityEntry>>(json));
+            }
         }
         catch (Exception ex)
         {
