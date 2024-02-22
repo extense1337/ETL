@@ -1,4 +1,5 @@
 ﻿using ETL.Domain;
+using ETL.Extractor.ServiceCollection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;

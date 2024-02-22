@@ -1,4 +1,4 @@
-﻿namespace ETL.Extractor;
+﻿namespace ETL.Extractor.ServiceCollection;
 
 public class ExternalApiConfig
 {

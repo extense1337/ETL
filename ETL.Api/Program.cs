@@ -1,6 +1,6 @@
 using ETL.DataAccess.PostgreSQL;
 using ETL.Domain;
-using ETL.Extractor;
+using ETL.Extractor.ServiceCollection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,13 +19,10 @@ var externalApiConfig = new ExternalApiConfig
     Host = builder.Configuration.GetValue<string>("ExternalApi:Host"),
     SearchRoute = builder.Configuration.GetValue<string>("ExternalApi:SearchRoute")
 };
-builder.Services.AddHttpClient<IExtractor, Extractor>(client =>
+builder.Services.AddExtractor(optionsBuilder =>
 {
-    if (externalApiConfig.Host != null)
-        client.BaseAddress = new Uri(externalApiConfig.Host);
+    optionsBuilder.Options.Config = externalApiConfig;
 });
-builder.Services.AddSingleton(externalApiConfig);
-builder.Services.AddScoped<IExtractor, Extractor>();
 
 var app = builder.Build();
 
